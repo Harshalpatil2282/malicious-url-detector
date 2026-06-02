@@ -12,7 +12,7 @@
 | Item | Details |
 |------|---------|
 | **🎓 Project** | Machine Learning Based Malicious URL Detection |
-| **👥 Developers** | Harshal Patil & Bhargav Patil |
+| **👥 Developer** | Harshal Patil  |
 | **📚 Course** | Machine Learning — Semester 6 |
 | **📅 Year** | 2026 |
 | **⚙️ Status** | ✅ Fully Functional & Production Ready |
