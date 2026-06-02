@@ -1,9 +1,18 @@
 /**
  * app.js — URL Shield Frontend Logic
- * Connects to Flask API at http://127.0.0.1:5000
+ * Auto-detects environment:
+ *   Local dev  → Flask API at http://127.0.0.1:5000  (routes: /health, /predict, ...)
+ *   Vercel     → Serverless API at /api              (routes: /api/health, /api/predict, ...)
  */
 
-const API_BASE = 'http://127.0.0.1:5000';
+const _isLocal = (
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname === ''
+);
+// Local: original app.py has no /api prefix. Vercel: index.py routes are /api/*
+const API_BASE = _isLocal ? 'http://127.0.0.1:5000' : '/api';
+
 
 // ════════════════════════════════════════════════════════════════════
 // Particle Background

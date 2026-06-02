@@ -53,7 +53,10 @@ Thumbs.db
 desktop.ini
 
 # Machine Learning models and data
+# NOTE: api/model.pkl and api/scaler.pkl are intentionally tracked (needed for Vercel)
 *.pkl
+!api/model.pkl
+!api/scaler.pkl
 *.pickle
 *.h5
 *.joblib

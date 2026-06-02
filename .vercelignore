@@ -1,0 +1,15 @@
+# Vercel ignore file — these will NOT be uploaded to Vercel
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.git/
+.gitignore
+
+# Large training files — not needed at runtime
+training/dataset_phishing.csv
+training/__pycache__/
+
+# Local dev artifacts
+api/__pycache__/
+api/*.log
