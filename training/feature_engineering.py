@@ -1,32 +1,69 @@
 """
 feature_engineering.py
 ======================
-Extract 40+ lexical features from raw URL strings for ML-based phishing/malicious URL detection.
+Extract 45 lexical features from raw URL strings for ML-based phishing/malicious URL detection.
 All features are derived from the URL string alone — no network calls.
 Covers: length/count stats, structural indicators, obfuscation signals, entropy, punycode, etc.
 
 IMPORTANT: Keep in perfect sync with api/feature_extractor.py
+
+Changelog v2:
+  - Removed brand names (google, apple, etc.) from SENSITIVE_WORDS to prevent false positives
+    on legitimate brand domains. Added brand_impersonation feature instead.
+  - Removed .co and .info from SUSPICIOUS_TLDS (too many legitimate sites use these).
+  - Fixed has_prefix_suffix to only flag hyphens at the START or END of a domain label.
+  - Added brand_impersonation: fires when a known brand appears in subdomain/path
+    but the registered domain is NOT that brand.
 """
 
 import re
 import math
-from urllib.parse import urlparse, parse_qs, unquote
+from urllib.parse import urlparse, parse_qs
 
 
 # ─── Keyword lists ────────────────────────────────────────────────────────────
 
+# Only generic phishing/scam words — NOT brand names (those are handled separately)
 SENSITIVE_WORDS = [
     'secure', 'account', 'update', 'login', 'banking', 'confirm',
-    'verify', 'paypal', 'signin', 'password', 'webscr', 'ebay',
-    'apple', 'amazon', 'microsoft', 'google', 'netflix', 'instagram',
+    'verify', 'signin', 'password', 'webscr',
     'wallet', 'reset', 'suspend', 'urgent', 'click', 'free', 'prize',
-    'billing', 'support', 'helpdesk', 'admin',
+    'billing', 'support', 'helpdesk', 'admin', 'verification',
+    'authenticate', 'validate', 'alert', 'notice', 'request',
 ]
+
+# Well-known brand names used to detect impersonation attacks
+BRAND_NAMES = [
+    'paypal', 'google', 'apple', 'amazon', 'microsoft', 'netflix',
+    'instagram', 'ebay', 'facebook', 'twitter', 'linkedin', 'dropbox',
+    'wellsfargo', 'bankofamerica', 'chase', 'citibank', 'hsbc',
+]
+
+# Map brand name → its legitimate registered domains (second-level domain only)
+BRAND_DOMAINS = {
+    'paypal':       {'paypal'},
+    'google':       {'google', 'googleapis', 'googleusercontent', 'gstatic', 'youtube', 'gmail'},
+    'apple':        {'apple', 'icloud', 'me'},
+    'amazon':       {'amazon', 'aws', 'amazonaws', 'audible', 'twitch'},
+    'microsoft':    {'microsoft', 'live', 'hotmail', 'outlook', 'azure', 'bing', 'msn', 'office365', 'office'},
+    'netflix':      {'netflix'},
+    'instagram':    {'instagram', 'cdninstagram'},
+    'ebay':         {'ebay', 'ebaystatic'},
+    'facebook':     {'facebook', 'fbcdn', 'instagram', 'whatsapp', 'oculus'},
+    'twitter':      {'twitter', 'twimg', 't'},
+    'linkedin':     {'linkedin', 'licdn'},
+    'dropbox':      {'dropbox', 'dropboxstatic'},
+    'wellsfargo':   {'wellsfargo'},
+    'bankofamerica':{'bankofamerica'},
+    'chase':        {'chase', 'jpmorganchase'},
+    'citibank':     {'citibank', 'citi'},
+    'hsbc':         {'hsbc'},
+}
 
 SUSPICIOUS_TLDS = [
     '.tk', '.ml', '.ga', '.cf', '.gq', '.xyz', '.top', '.click',
     '.link', '.work', '.bid', '.win', '.loan', '.online', '.site',
-    '.club', '.pw', '.cc', '.co', '.info',
+    '.club', '.pw', '.cc',
 ]
 
 SHORTENING_SERVICES = [
@@ -44,7 +81,7 @@ IP_RE = re.compile(
 )
 
 
-# ─── Helper: Shannon entropy ───────────────────────────────────────────────────
+# ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def _entropy(s: str) -> float:
     """Compute Shannon entropy of a string (bits per character)."""
@@ -57,11 +94,59 @@ def _entropy(s: str) -> float:
     return -sum((v / n) * math.log2(v / n) for v in freq.values())
 
 
+def _get_registered_domain(netloc: str) -> str:
+    """
+    Extract the registered domain (second-level domain) from a netloc.
+    e.g. 'www.google.com' → 'google'
+         'paypal-login.evil.tk' → 'evil'
+    """
+    host = netloc.split(':')[0].lower()  # strip port
+    parts = host.split('.')
+    if len(parts) >= 2:
+        return parts[-2]
+    return host
+
+
+def _check_brand_impersonation(netloc_lower: str, path: str, url_lower: str) -> int:
+    """
+    Return 1 if a brand name appears in the URL but the registered domain
+    is NOT the legitimate brand domain. This catches phishing like:
+      paypal-login.evil.com   → brand 'paypal' in subdomain, reg_domain='evil' → impersonation
+      http://evil.tk/google   → brand 'google' in path, reg_domain='evil.tk'   → impersonation
+    But NOT:
+      www.google.com          → brand 'google', reg_domain='google'             → legitimate
+      mail.google.com         → brand 'google', reg_domain='google'             → legitimate
+    """
+    reg_domain = _get_registered_domain(netloc_lower)
+    full_url = url_lower
+
+    for brand, legit_domains in BRAND_DOMAINS.items():
+        if brand in full_url:
+            # Brand name appears somewhere in the URL
+            if reg_domain not in legit_domains:
+                # The registered domain is NOT the real brand domain → impersonation
+                return 1
+    return 0
+
+
+def _has_true_prefix_suffix(netloc_no_port: str) -> int:
+    """
+    Return 1 only if a hyphen appears at the START or END of a domain label.
+    e.g. '-paypal.com' or 'paypal-.com' → 1  (true prefix/suffix attack)
+         'my-site.com' → 0  (legitimate hyphenated domain)
+    """
+    labels = netloc_no_port.lower().split('.')
+    for label in labels:
+        if label.startswith('-') or label.endswith('-'):
+            return 1
+    return 0
+
+
 # ─── Main extractor ────────────────────────────────────────────────────────────
 
 def extract_url_features(url: str) -> dict:
     """
-    Extract 40+ lexical features from a raw URL string.
+    Extract 45 lexical features from a raw URL string.
 
     Returns a dict of numeric features.  Returns all-zeros on empty/invalid input.
     """
@@ -105,7 +190,7 @@ def extract_url_features(url: str) -> dict:
         # ── Domain properties ────────────────────────────────────────────
         'has_ip_address':       0,
         'has_port':             0,
-        'has_prefix_suffix':    0,   # hyphen in domain
+        'has_prefix_suffix':    0,   # hyphen at START/END of a domain label
         'domain_has_digits':    0,
         'is_punycode':          0,   # xn-- IDN homograph
 
@@ -119,6 +204,7 @@ def extract_url_features(url: str) -> dict:
         # ── Content-based ────────────────────────────────────────────────
         'n_sensitive_words':    0,
         'has_suspicious_tld':   0,
+        'brand_impersonation':  0,   # NEW: brand name used outside its real domain
 
         # ── Path token analysis ──────────────────────────────────────────
         'longest_token_length': 0,
@@ -173,7 +259,7 @@ def extract_url_features(url: str) -> dict:
     feats['has_ip_address']   = 1 if IP_RE.match(netloc_no_port) else 0
     feats['domain_has_digits']= 1 if any(c.isdigit() for c in netloc_no_port) else 0
     feats['is_punycode']      = 1 if 'xn--' in netloc_lower else 0
-    feats['has_prefix_suffix']= 1 if '-' in netloc_no_port else 0
+    feats['has_prefix_suffix']= _has_true_prefix_suffix(netloc_no_port)
 
     if ':' in netloc:
         port_part = netloc.split(':')[-1]
@@ -232,6 +318,8 @@ def extract_url_features(url: str) -> dict:
             feats['shortening_service'] = 1
             break
 
+    feats['brand_impersonation'] = _check_brand_impersonation(netloc_lower, path, url_lower)
+
     return feats
 
 
@@ -243,18 +331,23 @@ def get_feature_names() -> list:
 if __name__ == '__main__':
     test_urls = [
         'https://www.google.com',
-        'http://paypal-secure-login.tk/verify?user=admin&id=12345&session=abc',
+        'https://mail.google.com/mail/u/0/',
+        'https://www.github.com',
+        'https://www.amazon.com/dp/B08N5WRWNW',
+        'http://paypal-secure-login.tk/verify?user=admin&id=12345',
+        'http://google-account-verify.evil.com/signin',
         'http://192.168.1.1:8080/admin/panel',
         'https://bit.ly/3xY2z',
         'http://xn--pypal-4ve.com/account/login',
-        'https://very-long-suspicious-domain-with-many-hyphens.co/login/account/update?token=abc123def456ghi789jkl&verify=true&redirect=http://evil.tk',
+        'https://very-long-suspicious-domain-with-many-hyphens.co/login/account/update?token=abc123',
         '',
     ]
     names = get_feature_names()
     print(f"Total features: {len(names)}")
+    print(f"Features: {names}")
     for u in test_urls:
         f = extract_url_features(u)
         print(f"\nURL: {u[:80]}")
         print(f"  entropy={f['url_entropy']:.2f}  len={f['url_length']}  "
-              f"params={f['n_params']}  sensitive={f['n_sensitive_words']}  "
-              f"punycode={f['is_punycode']}  https={f['uses_https']}")
+              f"sensitive={f['n_sensitive_words']}  brand_imp={f['brand_impersonation']}  "
+              f"prefix_suffix={f['has_prefix_suffix']}  https={f['uses_https']}")

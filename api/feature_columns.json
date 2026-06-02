@@ -39,6 +39,7 @@
   "shortening_service",
   "n_sensitive_words",
   "has_suspicious_tld",
+  "brand_impersonation",
   "longest_token_length",
   "avg_token_length"
 ]
