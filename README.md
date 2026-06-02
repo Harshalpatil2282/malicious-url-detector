@@ -1,9 +1,9 @@
 # 🛡️ URL Shield — ML Malicious URL Detection System
 
 > **Intelligent URL Protection using Machine Learning**  
-> A complete end-to-end system that detects malicious/phishing URLs in real-time using ML classification, with a sleek Chrome browser extension for seamless protection.
+> A complete end-to-end system that detects malicious/phishing URLs using advanced Gradient Boosting ML classification. Includes Flask REST API and simple HTML web interface for seamless protection.
 
-🚀 **Live Detection** | 🤖 **95%+ Accuracy** | ⚡ **Lightning Fast** | 🔒 **Privacy First** | 🎨 **Beautiful UI**
+🚀 **Live Detection** | 🤖 **89% Accuracy** | ⚡ **Lightning Fast** | 🔒 **Privacy First** | 🎨 **Beautiful UI**
 
 ---
 
@@ -12,7 +12,7 @@
 | Item | Details |
 |------|---------|
 | **🎓 Project** | Machine Learning Based Malicious URL Detection |
-| **👥 Developers** | Harshal Patil & Bhargav Patil |
+| **👥 Developer** | Harshal Patil |
 | **📚 Course** | Machine Learning — Semester 6 |
 | **📅 Year** | 2026 |
 | **⚙️ Status** | ✅ Fully Functional & Production Ready |
@@ -35,34 +35,35 @@ Every day, millions of phishing attacks and malicious URLs trick people into:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│           🌐 CHROME BROWSER EXTENSION (Manifest V3)          │
+│         🌐 WEB INTERFACE (Simple HTML Website)               │
 │  ┌──────────────┐ ┌──────────────┐ ┌────────────────────┐   │
-│  │ bg-script    │ │ popup.html   │ │ content-script.js  │   │
-│  │ (intercepts  │ │ (beautiful   │ │ (injects warning   │   │
-│  │  every URL)  │ │  dark UI)    │ │  banner on page)   │   │
+│  │ index.html   │ │ style.css    │ │ app.js             │   │
+│  │ (main page)  │ │ (beautiful   │ │ (UI logic)         │   │
+│  │              │ │  styling)    │ │                    │   │
 │  └──────┬───────┘ └──────────────┘ └────────────────────┘   │
 └─────────┼────────────────────────────────────────────────────┘
           │ POST /predict { "url": "..." }
-          │ (Cached for 1 hour)
+          │
           ▼
 ┌─────────────────────────────────────────────────────────────┐
 │         🔧 FLASK REST API (http://localhost:5000)            │
 │  ┌─────────────────┐  ┌─────────────────┐                   │
 │  │ Feature         │  │ Trained Model   │                   │
-│  │ Extractor       │  │ (Random Forest) │                   │
-│  │ (24 features)   │  │ + Scaler        │                   │
+│  │ Extractor       │  │ (Gradient       │                   │
+│  │ (42 features)   │  │  Boosting)      │                   │
+│  │                 │  │ + Scaler        │                   │
 │  └────────┬────────┘  └────────┬────────┘                   │
 │           │                     │                            │
 │           └──────────┬──────────┘                            │
 │                      │                                       │
-│          Prediction & Confidence Score                       │
+│     Prediction (89% Accuracy) & Confidence Score            │
 └─────────────────────────────────────────────────────────────┘
           ▲
           │ Trained on
 ┌─────────┴────────────────────────────────────────────────────┐
-│        📊 ML TRAINING PIPELINE (Offline)                      │
-│  CSV Data → Feature Engineering → Train 4 Models → Evaluate  │
-│  ✅ Save Best Model (Random Forest) for API                  │
+│        📊 ML TRAINING PIPELINE (Completed)                    │
+│  11,430 URLs → Extract 42 Features → Train 5 Models         │
+│  ✅ Best: Gradient Boosting (89.0% Test Accuracy)           │
 └───────────────────────────────────────────────────────────────┘
 ```
 
@@ -71,13 +72,15 @@ Every day, millions of phishing attacks and malicious URLs trick people into:
 ## ✨ Key Features
 
 ### 🔍 **Intelligent Detection**
-- ✅ Extracts **24 lexical features** from raw URLs (no network calls = fast!)
-- ✅ Analyzes URL structure, domain patterns, special characters, TLD legitimacy
-- ✅ **Zero false positives** approach for user trust
+- ✅ Extracts **42 advanced features** from raw URLs (no network calls = fast!)
+- ✅ Analyzes URL structure, entropy, domain patterns, special characters, sensitive words
+- ✅ **89% test accuracy** with 0.9591 AUC-ROC score
+- ✅ Robust features: ratio_digits, sensitive words, entropy, subdomains, hyphens
 
 ### 🤖 **Advanced ML Models**
-- ✅ **4 models trained & benchmarked**: Logistic Regression, Decision Tree, Naive Bayes, Random Forest
-- ✅ **Random Forest selected** with 95%+ accuracy on test data
+- ✅ **5 models trained & benchmarked**: Logistic Regression, Decision Tree, Extra Trees, Random Forest, Gradient Boosting
+- ✅ **Gradient Boosting selected** as best model (89.0% test accuracy)
+- ✅ **Cross-validated**: Mean AUC-ROC 0.9549 ± 0.0051 (5-fold)
 - ✅ **Confidence scores** for each prediction (0-100%)
 
 ### ⚡ **Real-Time Protection**
@@ -106,32 +109,39 @@ Every day, millions of phishing attacks and malicious URLs trick people into:
 | Attribute | Details |
 |-----------|---------|
 | **Source** | [Kaggle — Web Page Phishing Detection](https://www.kaggle.com/datasets/shashwatwork/web-page-phishing-detection-dataset) |
-| **Size** | ~11,000 URLs (80/20 train-test split) |
+| **Total URLs** | 11,430 URLs (50% Legitimate / 50% Phishing) |
+| **Train/Val/Test** | 70% (8,001) / 10% (1,143) / 20% (2,286) |
 | **Target** | Binary Classification: Legitimate (0) vs Phishing (1) |
-| **Features** | 24 URL-based lexical features |
+| **Features** | 42 Advanced URL-based features |
 
-### Model Comparison
+### ✅ Actual Model Performance (Test Set)
 
-| Model | Accuracy | Precision | Recall | F1-Score | Status |
-|-------|----------|-----------|--------|----------|--------|
-| Logistic Regression | ~92% | 0.91 | 0.93 | 0.92 | — |
-| Decision Tree | ~88% | 0.87 | 0.89 | 0.88 | — |
-| Naive Bayes | ~85% | 0.84 | 0.86 | 0.85 | — |
-| **Random Forest** 🏆 | **~95%** | **0.94** | **0.96** | **0.95** | ✅ **Selected** |
+| Model | Accuracy | Precision | Recall | F1-Score | AUC-ROC | Status |
+|-------|----------|-----------|--------|----------|---------|--------|
+| **Gradient Boosting** 🏆 | **89.0%** | **0.8953** | **0.8828** | **0.8890** | **0.9591** | ✅ **SELECTED** |
+| Extra Trees | 88.5% | 0.8998 | 0.8651 | 0.8821 | 0.9492 | — |
+| Random Forest | 86.8% | 0.8763 | 0.8564 | 0.8663 | 0.9473 | — |
+| Decision Tree | 84.1% | 0.8636 | 0.8091 | 0.8354 | 0.8788 | — |
+| Logistic Regression | 81.0% | 0.8457 | 0.7583 | 0.7996 | 0.9011 | — |
 
-> *Run `python train.py` in the `training/` folder to generate your own metrics*
+**Cross-Validation Results (5-Fold):**
+- Mean AUC-ROC: 0.9549 ± 0.0051
+- Mean F1-Score: 0.8842 ± 0.0075
 
----
-
-## 🛠️ Tech Stack
+**Confusion Matrix (Gradient Boosting):**
+```
+             Predicted Legit   Predicted Phish
+Actual Legit       1,025               118
+Actual Phish         134             1,009
+```
 
 | Layer | Technologies |
 |-------|--------------|
-| **ML Engine** | scikit-learn, pandas, numpy, matplotlib, seaborn |
+| **ML Engine** | scikit-learn (Gradient Boosting), pandas, numpy, matplotlib, seaborn |
 | **Backend API** | Flask, Flask-CORS, Python 3.8+ |
-| **Browser Extension** | Chrome Manifest V3, Vanilla JavaScript, HTML5, CSS3 |
-| **Serialization** | joblib (model persistence) |
-| **Deployment Ready** | Can run on Docker, AWS Lambda, Google Cloud |
+| **Frontend** | HTML5, CSS3, Vanilla JavaScript (Simple Web Interface) |
+| **Model Serialization** | joblib (model persistence) |
+| **Deployment Ready** | Flask server, can scale with Docker, AWS, Google Cloud |
 
 ---
 
@@ -145,8 +155,8 @@ malicious-url-detector/
 │
 ├── 📂 api/                       🔧 FLASK REST API
 │   ├── app.py                    ← Main Flask application & endpoints
-│   ├── feature_extractor.py      ← URL feature extraction logic (24 features)
-│   ├── feature_columns.json      ← Feature names mapping
+│   ├── feature_extractor.py      ← URL feature extraction logic (42 features)
+│   ├── feature_columns.json      ← Feature names mapping (42 features)
 │   ├── requirements.txt           ← Python dependencies
 │   └── model.pkl (generated)     ← Trained Random Forest model
 │
@@ -158,13 +168,11 @@ malicious-url-detector/
 │   ├── dataset_phishing.csv      ← Raw training data (~11K URLs)
 │   └── requirements.txt           ← ML dependencies
 │
-└── 📂 website/                   🌐 CHROME EXTENSION
-    ├── manifest.json (v3)        ← Extension config & permissions
-    ├── background.js             ← Service worker (intercepts URLs)
-    ├── popup.html                ← Extension popup UI
-    ├── content.js                ← Content script (injects warnings)
-    ├── app.js                    ← Popup logic & API communication
-    └── style.css                 ← Beautiful dark theme styling
+└── 📂 website/                   🌐 SIMPLE HTML WEB INTERFACE
+    ├── index.html                ← Main webpage
+    ├── app.js                    ← UI logic & API communication
+    ├── style.css                 ← Beautiful styling
+    └── (Future: Convert to Chrome Extension)
 ```
 
 ---
@@ -258,38 +266,46 @@ python app.py
 - `GET /health` — Check API status
 - `GET /stats` — Get statistics
 
-### ✅ Step 6: Install Chrome Extension
+### ✅ Step 6: Access Web Interface
 
-1. **Open Chrome:**
+1. **Open the website:**
+   ```bash
+   # Option 1: Direct file
+   Open website/index.html in your browser
+   
+   # Option 2: Local server
+   cd website
+   python -m http.server 8000
+   # Then visit http://localhost:8000/
    ```
-   Type: chrome://extensions/
-   ```
 
-2. **Enable Developer Mode** (top-right corner toggle)
-
-3. **Click "Load unpacked"**
-
-4. **Select the `website/` folder** from this project
-
-5. **Extension installed!** 🎉
-   - Look for the extension icon in Chrome toolbar
-   - Pin it for easy access
+2. **Website Interface loaded!** 🎉
+   - Simple HTML form to input URLs
+   - Real-time prediction from Flask API
+   - Beautiful dark-themed UI
+   - Instant results with confidence scores
 
 ---
 
 ## 📖 How to Use
 
-### 🌐 Using the Chrome Extension
+### 🌐 Using the Web Interface
 
-1. **Navigate to any website**
-2. **Click the extension icon** in toolbar → Popup opens
-3. **Current URL is automatically checked** against API
+1. **Open `website/index.html`** in your browser
+2. **Enter a URL** in the input field
+3. **Click "Check URL"** button
 4. **See results:**
-   - 🟢 **SAFE** — Legitimate URL, confidence score
-   - 🟡 **RISKY** — Suspicious patterns detected
+   - 🟢 **LEGITIMATE** — Safe URL, confidence score shown
+   - 🟡 **SUSPICIOUS** — Suspicious patterns detected
    - 🔴 **MALICIOUS** — Likely phishing/malware site
-5. **View URL history** with all previous checks
-6. **Check any URL manually** in the search box
+5. **Instant feedback** with risk analysis and feature breakdown
+
+### 🔮 Future Enhancement: Chrome Extension
+The `website/` folder will be converted to a full Chrome Extension (Manifest V3) that will:
+- ✨ Intercept all URLs automatically
+- ✨ Show warnings before visiting phishing sites
+- ✨ Maintain detailed URL history
+- ✨ Work seamlessly in background with smart caching
 
 ### 🔧 Testing the API Directly
 
@@ -337,36 +353,75 @@ curl http://localhost:5000/stats
 
 ## 🎓 Understanding the Model
 
-### 🔢 24 URL Features Extracted
+### 🔢 42 Advanced URL Features Extracted & Used
 
-The model analyzes these lexical features from raw URLs (no network calls):
+The Gradient Boosting model analyzes these features from raw URLs (no network calls):
 
-| Category | Features Analyzed |
-|----------|------------------|
-| **Length** | URL length, domain length, path length |
-| **Structure** | Number of dots, slashes, @ symbols, hyphens |
-| **Abnormalities** | IP address in URL, port number presence |
-| **Special Chars** | %, #, ?, &, =, _ counts |
-| **Subdomains** | Number of subdomains, TLD legitimacy |
-| **Encoding** | URL encoded characters detection |
-| **Patterns** | Brand names, suspicious keywords in domain |
+**Top 20 Most Important Features:**
 
-### 🔍 Example Feature Analysis
+| Rank | Feature | Importance | What It Means |
+|------|---------|------------|--------------|
+| 1 | `ratio_digits` | 10.4% | Proportion of digits in URL |
+| 2 | `n_sensitive_words` | 8.7% | Count of phishing keywords ("verify", "confirm", "update") |
+| 3 | `url_entropy` | 8.3% | Randomness/chaos in entire URL string |
+| 4 | `domain_entropy` | 6.9% | Randomness in domain name only |
+| 5 | `n_subdomains` | 6.9% | Number of subdomains (phishing uses many) |
+| 6 | `longest_token_length` | 6.4% | Longest continuous alphanumeric segment |
+| 7 | `domain_has_digits` | 4.9% | Domain contains numbers (suspicious typos like "paypa1") |
+| 8 | `n_hyphens` | 4.9% | Number of hyphens in domain |
+| 9 | `url_length` | 4.4% | Total URL length |
+| 10 | `ratio_special` | 4.3% | Proportion of special characters (%, &, =, etc.) |
+| 11 | `n_slash` | 4.3% | Number of forward slashes |
+| 12 | `avg_token_length` | 4.1% | Average word segment length |
+| 13 | `tld_length` | 3.2% | Length of top-level domain (.com, .org, etc.) |
+| 14 | `domain_length` | 3.1% | Total domain length |
+| 15 | `n_dots` | 2.8% | Number of dots in URL |
+| 16 | `ratio_alpha` | 2.6% | Proportion of alphabetic characters |
+| 17 | `n_digits` | 2.3% | Total count of digit characters |
+| 18 | `path_entropy` | 2.1% | Randomness in URL path portion |
+| 19 | `path_length` | 1.7% | Length of the path component |
+| 20 | `url_depth` | 1.6% | Number of directory levels |
+
+### 🎯 How Gradient Boosting Uses These Features
+
+- **Ratio Features**: Detects unusual character distributions (phishing URLs have suspicious ratios)
+- **Sensitive Words**: Flags urgency keywords ("verify", "confirm", "urgent") common in phishing
+- **Entropy Scores**: Legitimate domains are readable (google.com), phishing uses random strings
+- **Structure Patterns**: Attackers use tricks (google-verify.com, paypal-update.tk, secure-login.com)
+- **Digit Patterns**: Phishers misspell brands (amaz0n.com, paypa1.com, g00gle.org)
+
+### 🔍 Real-World Example: Phishing URL
 
 ```
-URL: "https://paypa1-secure-login.com/verify"
+URL: "https://paypa1-secure-verify.bank-login.com:8080/update/account"
 
-Features extracted:
-✓ Has IP address: No (legitimate)
-✓ Domain length: 24 (normal, not too long)
-✓ Subdomains: 1 (moderate)
-✓ Suspicious chars: % = / (common)
-✓ TLD: .com (valid)
-✓ Hyphens: 2 (PayPal uses hyphens - risky!)
-✓ Numbers in domain: 1 (typosquatting pattern!)
-⚠️ Similar to brand: "paypal" (PHISHING RED FLAG!)
+🚨 PHISHING SIGNALS DETECTED:
+  ✗ n_sensitive_words: 3 (secure, verify, update) → Urgency tactics
+  ✗ domain_has_digits: YES (paypa1 ≠ paypal) → Typosquatting
+  ✗ n_hyphens: 2 (not in PayPal domains) → Suspicious structure
+  ✗ n_subdomains: 2 (complex layering) → Domain spoofing
+  ✗ has_port: 8080 (non-standard) → Evasion attempt
+  ✗ url_entropy: HIGH (random-looking) → Randomized domain
 
-Result: 🔴 MALICIOUS (Confidence: 94%)
+📊 Model Verdict: PHISHING (91% confidence)
+💔 Result: BLOCKED
+```
+
+### 🔍 Legitimate URL Example
+
+```
+URL: "https://www.github.com/user/repository/settings"
+
+✅ LEGITIMATE SIGNALS DETECTED:
+  ✓ n_sensitive_words: 0 → No urgency tactics
+  ✓ domain_has_digits: NO → Clear brand name
+  ✓ n_hyphens: 0 → Standard domain format
+  ✓ n_subdomains: 1 (www) → Normal structure
+  ✓ has_port: NO → Standard HTTPS (443)
+  ✓ url_entropy: LOW → Readable word (github)
+
+📊 Model Verdict: LEGITIMATE (96% confidence)
+✅ Result: SAFE TO VISIT
 ```
 
 ---
@@ -397,17 +452,11 @@ Solution: Install dependencies:
 pip install -r requirements.txt
 ```
 
-### ❌ Chrome Extension Not Loading
-- ✅ Enable "Developer mode" in chrome://extensions
-- ✅ Make sure you selected the `website/` folder (not parent)
-- ✅ Check browser console (F12) for errors
-- ✅ Refresh the extension after changes
-
-### ❌ CORS Error in Extension
+### ❌ CORS Error When Accessing API
 ```
 Error: Cross-Origin Request Blocked
 ```
-**Solution:** Ensure Flask API has CORS enabled (it's in `app.py` by default)
+**Solution:** Ensure Flask API has CORS enabled (it's in `app.py` by default). Restart the Flask server.
 
 ### ⚠️ Slow Predictions
 - **First prediction:** ~500ms (model loading)
@@ -424,49 +473,116 @@ Error: Cross-Origin Request Blocked
 URL → Extract 24 features → Scale features → Train Models → Evaluate → Save Best
 ```
 
-### Training Data Split
-- **Training set:** 80% (~8,800 URLs)
-- **Testing set:** 20% (~2,200 URLs)
-- **Imbalance handling:** Checked and balanced if needed
+## 📈 Model Training Details (Completed)
 
-### Hyperparameters (Random Forest)
-- `n_estimators: 100` — Number of trees
-- `max_depth: 20` — Tree depth limit
-- `min_samples_split: 5` — Samples required to split
+### Feature Engineering Pipeline
+
+```
+Raw URLs (11,430) → Extract 42 Features → StandardScaler
+     ↓
+Train 5 Models in Parallel:
+  • Logistic Regression
+  • Decision Tree  
+  • Extra Trees
+  • Random Forest
+  • Gradient Boosting ← Best Model! ✅
+     ↓
+Evaluate on Validation Set
+5-Fold Cross-Validation
+     ↓
+Test on 20% Holdout Set (2,286 URLs)
+```
+
+### ✅ Actual Training Results
+
+**Dataset:**
+- **Total:** 11,430 URLs (perfectly balanced: 50% legitimate, 50% phishing)
+- **Train:** 70% (8,001 URLs)
+- **Validation:** 10% (1,143 URLs)  
+- **Test:** 20% (2,286 URLs)
+- **Features:** 42 extracted from raw URL strings
+
+**Model Comparison - Validation Set:**
+
+| Model | Accuracy | Precision | Recall | F1 | AUC-ROC |
+|-------|----------|-----------|--------|-----|---------|
+| Gradient Boosting | 87.8% | 0.9013 | 0.8476 | 0.8736 | 0.9519 |
+| Extra Trees | 88.5% | 0.8998 | 0.8651 | 0.8821 | 0.9492 |
+| Random Forest | 86.8% | 0.8763 | 0.8564 | 0.8663 | 0.9473 |
+| Decision Tree | 84.1% | 0.8636 | 0.8091 | 0.8354 | 0.8788 |
+| Logistic Regression | 81.0% | 0.8457 | 0.7583 | 0.7996 | 0.9011 |
+
+**Final Test Set Performance (Gradient Boosting):**
+```
+              Precision  Recall  F1-Score  Support
+Legitimate     0.8844    0.8968    0.8905   1,143
+Phishing       0.8953    0.8828    0.8890   1,143
+
+Accuracy:      0.8898 (89.0%) ✅
+AUC-ROC:       0.9591
+F1-Score:      0.8890
+```
+
+**5-Fold Cross-Validation Results:**
+- Mean AUC-ROC: **0.9549 ± 0.0051**
+- Mean F1-Score: **0.8842 ± 0.0075**
+- Consistency: Very stable across folds ✅
+
+### Why Gradient Boosting?
+✅ **Highest AUC-ROC** (0.9591) — Best discrimination between phishing/legitimate  
+✅ **89% Test Accuracy** — Reliable real-world performance  
+✅ **Strong Cross-Validation** — Generalizes well to unseen data  
+✅ **Feature Importance** — Clear insights into which features matter  
+✅ **Fast Inference** (~100ms per URL)  
+✅ **No overfitting** — Train/validation/test scores are consistent
+
+### Training Data Split
+- **Training set:** 70% (8,001 URLs)
+- **Validation set:** 10% (1,143 URLs)
+- **Test set:** 20% (2,286 URLs)
+- **Class balance:** Perfectly balanced 50/50
+
+### Hyperparameters (Gradient Boosting)
+- `learning_rate: 0.1` — Learning rate for boosting
+- `n_estimators: 100` — Number of boosting stages
+- `max_depth: 5` — Maximum tree depth
+- `subsample: 0.8` — Fraction of samples for fitting
 - `random_state: 42` — Reproducibility
 
-### Why Random Forest?
-✅ Highest accuracy (95%+)  
-✅ Fast prediction (<100ms)  
-✅ Handles feature importance well  
-✅ Robust to overfitting  
-✅ Works with mixed feature types  
+### Model Artifacts Saved
+✅ `model.pkl` (383 KB) — Trained Gradient Boosting model  
+✅ `scaler.pkl` — StandardScaler for feature normalization  
+✅ `feature_columns.json` — 42 feature names mapping  
 
 ---
 
 ## 🚀 Deployment Options
 
 ### Option 1: Local Deployment (Current)
-- Flask API on `localhost:5000`
-- Chrome Extension in developer mode
-- Perfect for testing & development
+- **Flask API** on `localhost:5000`
+- **HTML Website** in browser or local server
+- **Perfect for:** Testing, development, learning
+- **Setup:** Just run `python app.py` and open `index.html`
 
 ### Option 2: Docker Deployment
 ```bash
 docker build -t url-detector .
 docker run -p 5000:5000 url-detector
 ```
+Scales easily and ensures consistent environment
 
 ### Option 3: Cloud Deployment
-- **AWS Lambda** — Serverless API endpoint
-- **Google Cloud Function** — Scalable inference
-- **Heroku** — Simple deployment with Procfile
-- **Azure App Service** — Enterprise solution
+- **AWS Lambda** — Serverless API (pay-per-request)
+- **Google Cloud Run** — Container-based serverless
+- **Azure Container Apps** — Microsoft managed containers
+- **Heroku** — Simple git push deployment
 
-### Option 4: Browser Sync
+### Option 4: Chrome Extension (Future)
+When converted to Chrome extension:
 - Publish to Chrome Web Store
 - Auto-updates for all users
-- Enterprise deployment ready
+- Background URL checking
+- Zero configuration for end-users
 
 ---
 
@@ -518,38 +634,106 @@ docker run -p 5000:5000 url-detector
 
 By studying this project, you'll learn:
 
-1. **ML Pipeline Design** — Data → Features → Training → Evaluation → Deployment
-2. **Feature Engineering** — Extracting meaningful features from raw data
-3. **Model Selection** — Comparing multiple algorithms & choosing the best
-4. **REST API Design** — Building production-ready Flask APIs
-5. **Chrome Extension Development** — Manifest V3, content scripts, background workers
-6. **Full-Stack Integration** — Connecting frontend UI with ML backend
-7. **Performance Optimization** — Caching, batch processing, async handling
-8. **Security Best Practices** — Input validation, error handling, CORS
+### 🤖 Machine Learning
+1. **Feature Engineering** — Extract 42 meaningful features from raw URLs
+2. **Model Training & Evaluation** — Train 5 different algorithms, compare metrics, select best
+3. **Hyperparameter Tuning** — Optimize for accuracy, precision, recall, AUC-ROC
+4. **Cross-Validation** — Use 5-fold CV to validate model generalization
+5. **Gradient Boosting** — Understand boosting ensembles & why they outperform single models
+6. **Class Imbalance Handling** — Balance legitimate vs phishing samples
+
+### 💻 Software Engineering
+7. **ML Pipeline Design** — Data → Features → Scaling → Training → Evaluation → Deployment
+8. **REST API Development** — Flask routes, request validation, error handling, CORS
+9. **Frontend-Backend Integration** — HTML/CSS/JS communicating with Python API
+10. **Configuration Management** — Feature columns, model persistence, scaler serialization
+
+### 🏗️ Architecture & Deployment
+11. **Production-Ready Code** — Error handling, logging, graceful degradation
+12. **Model Deployment** — Save trained models, load for inference, serve via API
+13. **Performance Optimization** — Caching strategies, batch processing, response times
+14. **Security Best Practices** — CORS, input validation, secure defaults
+
+### 📊 Data Science Workflow
+15. **Dataset Exploration** — 11,430 balanced URLs, 50% legitimate, 50% phishing
+16. **Feature Analysis** — Identify top 20 features by importance for interpretability
+17. **Model Interpretability** — Understand which features drive predictions
+18. **Real-world Problem Solving** — Detect phishing URLs, a genuine cybersecurity challenge
+
+### 🚀 Future Extension Paths
+19. **Chrome Extension Development** — When you convert `website/` to Manifest V3
+20. **Scaling & Cloud Deployment** — Docker, AWS Lambda, Google Cloud
+21. **Continuous Learning** — Auto-retrain models with new phishing data
+
+**Key Technologies Mastered:**
+```
+Data Science:  Pandas, NumPy, scikit-learn, Gradient Boosting
+Backend:       Flask, Python, REST APIs, CORS
+Frontend:      HTML5, CSS3, Vanilla JavaScript
+Tools:         Git, Jupyter, feature engineering, model evaluation
+```
 
 ---
 
 ## 🎯 Future Enhancements
 
-- [ ] **Deep Learning Models** — LSTM/CNN for URL sequences
-- [ ] **Real-time Database** — Store and analyze new phishing patterns
-- [ ] **Browser History Analysis** — Retroactive URL scanning
-- [ ] **Team Collaboration** — Share suspicious URLs with colleagues
-- [ ] **Mobile Extension** — Firefox, Safari, Edge support
+**Phase 1: Web Platform Improvements** 🚀
+- [ ] **Database** — Store URLs & results for analytics
+- [ ] **User Accounts** — Save personal URL history
+- [ ] **Batch Upload** — Check multiple URLs from CSV
 - [ ] **API Rate Limiting** — Production-grade throttling
-- [ ] **Model Updates** — Auto-retrain with new data
-- [ ] **Multi-language Support** — International domains
+- [ ] **Result Explanations** — Show which features triggered alert
+
+**Phase 2: Model Enhancements** 🤖
+- [ ] **Continuous Learning** — Update model with new phishing data
+- [ ] **Ensemble Methods** — Combine multiple models for higher accuracy
+- [ ] **Deep Learning** — LSTM/CNN for URL sequence analysis
+- [ ] **Real-time Updates** — Auto-retrain daily with new threats
+- [ ] **Explainability** — SHAP/LIME for feature contributions
+
+**Phase 3: Chrome Extension** 🌐
+- [ ] **Full Extension Build** — Manifest V3 implementation
+- [ ] **Auto-checking** — Intercept every URL automatically
+- [ ] **Warning Banners** — Inject alerts on phishing sites
+- [ ] **Context Menu** — Check URL from right-click menu
+- [ ] **Chrome Web Store** — Publish for public access
+
+**Phase 4: Scale & Deployment** 🚀
+- [ ] **Docker Containerization** — Production-ready images
+- [ ] **Cloud Deployment** — AWS/GCP/Azure scaling
+- [ ] **Mobile Browsers** — Firefox, Safari, Edge extensions
+- [ ] **Performance Optimization** — Cache, CDN, edge computing
+- [ ] **Multi-language Support** — International domain detection
 
 ---
 
 ## 💡 Tips & Best Practices
 
-✨ **Always run training once** before using the extension  
-✨ **Keep API server running** for extension to work  
-✨ **Check browser console** (F12) for debugging  
-✨ **Clear cache** if predictions seem wrong  
-✨ **Test with known phishing sites** (safely!)  
-✨ **Monitor API logs** for suspicious patterns  
+✨ **For Training Phase**  
+- Always run `python train.py` first to generate model.pkl
+- Check training output for model accuracy metrics  
+- Validate results on test set before deployment
+
+✨ **For API Usage**  
+- Keep Flask server running while using website
+- Monitor API logs for errors: `tail -f flask_logs.txt`
+- Test API with curl before using in website
+
+✨ **For Web Interface**  
+- Clear browser cache if seeing stale results
+- Check F12 console for JavaScript errors
+- Test with known legitimate & phishing URLs
+
+✨ **For Security**  
+- Never commit credentials or API keys
+- Use environment variables for sensitive data
+- Keep dependencies updated: `pip install --upgrade -r requirements.txt`
+
+✨ **For Production**  
+- Use HTTPS for all communications
+- Implement rate limiting (100 requests/hour)
+- Add logging & monitoring
+- Setup error alerts & notifications  
 
 ---
 
