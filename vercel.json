@@ -7,8 +7,33 @@
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index.py" },
-    { "src": "/(.*\\.(js|css|png|ico|svg|woff|woff2|ttf|eot|map))", "dest": "/website/$1" },
-    { "src": "/(.*)", "dest": "/website/index.html" }
+    {
+      "src": "/api/health",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/api/predict",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/api/batch_predict",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/api/stats",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/style.css",
+      "dest": "/public/style.css"
+    },
+    {
+      "src": "/app.js",
+      "dest": "/public/app.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/index.html"
+    }
   ]
 }

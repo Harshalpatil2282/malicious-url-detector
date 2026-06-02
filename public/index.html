@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>URL Shield — Malicious URL Detector</title>
+  <meta name="description" content="Real-time ML-powered malicious URL detection. Check any URL instantly for phishing, malware and other threats." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ════════════════════════ ANIMATED BG ═══════════════════════════ -->
+  <div class="bg-grid"></div>
+  <div class="bg-particles" id="bgParticles"></div>
+
+  <!-- ════════════════════════ NAV ═══════════════════════════════════ -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="nav-logo">
+        <div class="logo-icon">🛡️</div>
+        <span>URL<strong>Shield</strong></span>
+      </div>
+      <div class="nav-links">
+        <a href="#checker">Checker</a>
+        <a href="#batch">Batch</a>
+        <a href="#stats">Stats</a>
+        <a href="#features">Features</a>
+      </div>
+      <div class="api-status" id="apiStatus">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Connecting…</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ════════════════════════ HERO ══════════════════════════════════ -->
+  <header class="hero" id="hero">
+    <div class="hero-content">
+      <div class="hero-badge">⚡ Powered by Machine Learning</div>
+      <h1 class="hero-title">
+        Detect Malicious URLs<br />
+        <span class="gradient-text">in Real Time</span>
+      </h1>
+      <p class="hero-subtitle">
+        Our ML model analyzes 45 URL features to instantly classify
+        any link as safe or malicious — with confidence scoring, risk levels,
+        and a trusted domain database of 100+ known-safe sites.
+      </p>
+      <div class="hero-cta">
+        <a href="#checker" class="btn-primary">Check a URL →</a>
+        <a href="#features" class="btn-ghost">How it works</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-val" id="heroTotal">—</span>
+          <span class="hero-stat-lbl">URLs Checked</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-val" id="heroMalicious">—</span>
+          <span class="hero-stat-lbl">Threats Found</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-val">45</span>
+          <span class="hero-stat-lbl">Feature Analysis</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="shield-ring ring-3"></div>
+      <div class="shield-ring ring-2"></div>
+      <div class="shield-ring ring-1"></div>
+      <div class="shield-center">🛡️</div>
+    </div>
+  </header>
+
+  <!-- ════════════════════════ SINGLE URL CHECKER ════════════════════ -->
+  <section class="section" id="checker">
+    <div class="container">
+      <div class="section-header">
+        <h2>URL Scanner</h2>
+        <p>Enter any URL to check it instantly</p>
+      </div>
+
+      <div class="checker-card card">
+        <div class="input-row">
+          <div class="url-input-wrap">
+            <span class="input-icon">🔗</span>
+            <input
+              type="text"
+              id="urlInput"
+              class="url-input"
+              placeholder="https://example.com or paste any suspicious link…"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button class="clear-btn" id="clearBtn" title="Clear">✕</button>
+          </div>
+          <button class="btn-primary scan-btn" id="scanBtn">
+            <span id="scanBtnText">Scan URL</span>
+            <div class="btn-spinner hidden" id="scanSpinner"></div>
+          </button>
+        </div>
+
+        <!-- Quick test links -->
+        <div class="quick-tests">
+          <span class="qt-label">Try:</span>
+          <button class="qt-btn" data-url="https://www.google.com">google.com</button>
+          <button class="qt-btn" data-url="http://paypal-account-verify.tk/login?user=admin&verify=true">phishing link</button>
+          <button class="qt-btn" data-url="http://bit.ly/3xYZ123">shortened URL</button>
+          <button class="qt-btn" data-url="https://github.com">github.com</button>
+          <button class="qt-btn" data-url="http://192.168.1.1:8080/admin">IP address</button>
+        </div>
+
+        <!-- Result Panel -->
+        <div class="result-panel hidden" id="resultPanel">
+          <div class="result-main">
+            <div class="result-verdict" id="resultVerdict">
+              <div class="verdict-icon" id="verdictIcon"></div>
+              <div class="verdict-text">
+                <div class="verdict-label" id="verdictLabel"></div>
+                <div class="verdict-url" id="verdictUrl"></div>
+              </div>
+            </div>
+            <div class="result-gauge-wrap">
+              <svg class="gauge" viewBox="0 0 160 100" id="gaugesvg">
+                <defs>
+                  <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#22c55e"/>
+                    <stop offset="50%" stop-color="#f59e0b"/>
+                    <stop offset="100%" stop-color="#ef4444"/>
+                  </linearGradient>
+                </defs>
+                <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="14" stroke-linecap="round"/>
+                <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#gaugeGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="188.5" id="gaugeArc"/>
+                <circle id="gaugeNeedle" cx="80" cy="90" r="6" fill="#fff"/>
+                <text x="80" y="78" text-anchor="middle" class="gauge-pct" id="gaugePct">0%</text>
+                <text x="20" y="104" text-anchor="middle" class="gauge-lbl">Safe</text>
+                <text x="140" y="104" text-anchor="middle" class="gauge-lbl">Risk</text>
+              </svg>
+            </div>
+          </div>
+
+          <div class="result-grid">
+            <div class="result-chip" id="chipRisk">
+              <span class="chip-lbl">Risk Level</span>
+              <span class="chip-val" id="chipRiskVal"></span>
+            </div>
+            <div class="result-chip">
+              <span class="chip-lbl">Confidence</span>
+              <span class="chip-val" id="chipConf"></span>
+            </div>
+            <div class="result-chip">
+              <span class="chip-lbl">Safe Probability</span>
+              <span class="chip-val" id="chipSafe"></span>
+            </div>
+            <div class="result-chip">
+              <span class="chip-lbl">Malicious Probability</span>
+              <span class="chip-val" id="chipMal"></span>
+            </div>
+            <div class="result-chip">
+              <span class="chip-lbl">Processing Time</span>
+              <span class="chip-val" id="chipMs"></span>
+            </div>
+            <div class="result-chip">
+              <span class="chip-lbl">Features Used</span>
+              <span class="chip-val" id="chipFeatures"></span>
+            </div>
+            <div class="result-chip trusted-chip" id="chipTrusted" style="display:none">
+              <span class="chip-lbl">Trusted Domain</span>
+              <span class="chip-val trusted-val" id="chipTrustedVal">&#x2713; Verified</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Panel -->
+        <div class="error-panel hidden" id="errorPanel">
+          <span class="error-icon">⚠️</span>
+          <span id="errorMsg"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════ BATCH CHECKER ═════════════════════════ -->
+  <section class="section alt-bg" id="batch">
+    <div class="container">
+      <div class="section-header">
+        <h2>Batch Scanner</h2>
+        <p>Scan up to 50 URLs at once — one per line</p>
+      </div>
+
+      <div class="batch-layout">
+        <div class="batch-input-card card">
+          <div class="batch-header">
+            <label class="batch-label" for="batchInput">Enter URLs (one per line)</label>
+            <span class="batch-count" id="batchCount">0 / 50</span>
+          </div>
+          <textarea
+            id="batchInput"
+            class="batch-textarea"
+            rows="10"
+            placeholder="https://google.com&#10;http://suspicious-login.tk&#10;https://github.com&#10;..."
+            spellcheck="false"
+          ></textarea>
+          <div class="batch-actions">
+            <button class="btn-ghost" id="batchClear">Clear</button>
+            <button class="btn-primary" id="batchScanBtn">
+              <span id="batchBtnText">Scan All</span>
+              <div class="btn-spinner hidden" id="batchSpinner"></div>
+            </button>
+          </div>
+        </div>
+
+        <div class="batch-results card" id="batchResults">
+          <div class="batch-empty" id="batchEmpty">
+            <div class="batch-empty-icon">📋</div>
+            <p>Results will appear here after scanning</p>
+          </div>
+          <div class="batch-summary hidden" id="batchSummary">
+            <div class="bs-stat safe"><span id="bsSafe">0</span><small>Safe</small></div>
+            <div class="bs-stat malicious"><span id="bsMalicious">0</span><small>Malicious</small></div>
+            <div class="bs-stat total"><span id="bsTotal">0</span><small>Total</small></div>
+          </div>
+          <div id="batchList" class="batch-list"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════ STATS ═════════════════════════════════ -->
+  <section class="section" id="stats">
+    <div class="container">
+      <div class="section-header">
+        <h2>Live Statistics</h2>
+        <p>Real-time API usage metrics — auto-refreshed every 10 seconds</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card card">
+          <div class="stat-icon total-icon">🔍</div>
+          <div class="stat-info">
+            <div class="stat-num" id="statTotal">—</div>
+            <div class="stat-name">Total Predictions</div>
+          </div>
+          <div class="stat-bar-wrap">
+            <div class="stat-bar total-bar" id="statTotalBar" style="width:100%"></div>
+          </div>
+        </div>
+        <div class="stat-card card">
+          <div class="stat-icon safe-icon">✅</div>
+          <div class="stat-info">
+            <div class="stat-num green" id="statSafe">—</div>
+            <div class="stat-name">Safe URLs</div>
+          </div>
+          <div class="stat-bar-wrap">
+            <div class="stat-bar safe-bar" id="statSafeBar" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="stat-card card">
+          <div class="stat-icon danger-icon">🚨</div>
+          <div class="stat-info">
+            <div class="stat-num red" id="statMalicious">—</div>
+            <div class="stat-name">Threats Detected</div>
+          </div>
+          <div class="stat-bar-wrap">
+            <div class="stat-bar danger-bar" id="statMaliciousBar" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="stat-card card">
+          <div class="stat-icon acc-icon">🎯</div>
+          <div class="stat-info">
+            <div class="stat-num yellow" id="statRate">—</div>
+            <div class="stat-name">Detection Rate</div>
+          </div>
+          <div class="stat-bar-wrap">
+            <div class="stat-bar acc-bar" id="statRateBar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════ FEATURES ══════════════════════════════ -->
+  <section class="section alt-bg" id="features">
+    <div class="container">
+      <div class="section-header">
+        <h2>How It Works</h2>
+        <p>45 URL features analyzed by a trained ML classifier + trusted domain verification</p>
+      </div>
+
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-num">01</div>
+          <h3>Feature Extraction</h3>
+          <p>The URL is parsed and 45 lexical features are extracted — including length, special characters, domain properties, entropy, and brand impersonation detection.</p>
+        </div>
+        <div class="how-arrow">→</div>
+        <div class="how-step">
+          <div class="how-num">02</div>
+          <h3>ML Inference</h3>
+          <p>Features are scaled and fed into a trained Random Forest model. The model outputs class probabilities for each URL.</p>
+        </div>
+        <div class="how-arrow">→</div>
+        <div class="how-step">
+          <div class="how-num">03</div>
+          <h3>Risk Assessment</h3>
+          <p>Probabilities are mapped to CRITICAL / HIGH / MEDIUM / LOW risk levels, and a full report is returned in milliseconds.</p>
+        </div>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card card" data-tooltip="Total character count of the URL">
+          <span class="feat-icon">📏</span>
+          <span class="feat-name">URL Length</span>
+        </div>
+        <div class="feature-card card" data-tooltip="Number of dots in URL">
+          <span class="feat-icon">·</span>
+          <span class="feat-name">Dot Count</span>
+        </div>
+        <div class="feature-card card" data-tooltip="Number of hyphens (-) in domain">
+          <span class="feat-icon">—</span>
+          <span class="feat-name">Hyphen Count</span>
+        </div>
+        <div class="feature-card card" data-tooltip="Whether URL uses HTTPS">
+          <span class="feat-icon">🔒</span>
+          <span class="feat-name">HTTPS Check</span>
+        </div>
+        <div class="feature-card card" data-tooltip="Domain uses an IP address instead of hostname">
+          <span class="feat-icon">📡</span>
+          <span class="feat-name">IP Address</span>
+        </div>
+        <div class="feature-card card" data-tooltip="Number of path depth levels">
+          <span class="feat-icon">📂</span>
+          <span class="feat-name">URL Depth</span>
+        </div>
+        <div class="feature-card card" data-tooltip="Detects URL shortening services">
+          <span class="feat-icon">🔗</span>
+          <span class="feat-name">Shortener</span>
+        </div>
+        <div class="feature-card card" data-tooltip="Words like 'login', 'verify', 'paypal'">
+          <span class="feat-icon">⚠️</span>
+          <span class="feat-name">Sensitive Words</span>
+        </div>
+        <div class="feature-card card" data-tooltip="Suspicious TLDs like .tk .ml .gq">
+          <span class="feat-icon">🚩</span>
+          <span class="feat-name">Suspicious TLD</span>
+        </div>
+        <div class="feature-card card" data-tooltip="Non-standard port numbers">
+          <span class="feat-icon">🔌</span>
+          <span class="feat-name">Port Number</span>
+        </div>
+        <div class="feature-card card" data-tooltip="Ratio of digits to total characters">
+          <span class="feat-icon">🔢</span>
+          <span class="feat-name">Digit Ratio</span>
+        </div>
+        <div class="feature-card card" data-tooltip="Number of subdomains present">
+          <span class="feat-icon">🌐</span>
+          <span class="feat-name">Subdomains</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════ FOOTER ════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-logo">🛡️ URL<strong>Shield</strong></div>
+        <p class="footer-note">ML-based malicious URL detection — 45 features · Trusted domain DB · v2.0</p>
+        <p class="footer-api">API: <code>http://127.0.0.1:5000</code></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

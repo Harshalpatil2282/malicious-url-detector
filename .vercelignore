@@ -13,3 +13,6 @@ training/__pycache__/
 # Local dev artifacts
 api/__pycache__/
 api/*.log
+
+# website/ is for local dev reference only — public/ is what Vercel serves
+website/
