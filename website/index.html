@@ -44,8 +44,9 @@
         <span class="gradient-text">in Real Time</span>
       </h1>
       <p class="hero-subtitle">
-        Our Random Forest model analyzes 24 URL features to instantly classify
-        any link as safe or malicious — with confidence scoring and risk levels.
+        Our ML model analyzes 45 URL features to instantly classify
+        any link as safe or malicious — with confidence scoring, risk levels,
+        and a trusted domain database of 100+ known-safe sites.
       </p>
       <div class="hero-cta">
         <a href="#checker" class="btn-primary">Check a URL →</a>
@@ -61,7 +62,7 @@
           <span class="hero-stat-lbl">Threats Found</span>
         </div>
         <div class="hero-stat">
-          <span class="hero-stat-val">24</span>
+          <span class="hero-stat-val">45</span>
           <span class="hero-stat-lbl">Feature Analysis</span>
         </div>
       </div>
@@ -165,6 +166,10 @@
             <div class="result-chip">
               <span class="chip-lbl">Features Used</span>
               <span class="chip-val" id="chipFeatures"></span>
+            </div>
+            <div class="result-chip trusted-chip" id="chipTrusted" style="display:none">
+              <span class="chip-lbl">Trusted Domain</span>
+              <span class="chip-val trusted-val" id="chipTrustedVal">&#x2713; Verified</span>
             </div>
           </div>
         </div>
@@ -282,14 +287,14 @@
     <div class="container">
       <div class="section-header">
         <h2>How It Works</h2>
-        <p>24 URL features analyzed by a trained Random Forest classifier</p>
+        <p>45 URL features analyzed by a trained ML classifier + trusted domain verification</p>
       </div>
 
       <div class="how-steps">
         <div class="how-step">
           <div class="how-num">01</div>
           <h3>Feature Extraction</h3>
-          <p>The URL is parsed and 24 lexical features are extracted — including length, special characters, domain properties, and suspicious patterns.</p>
+          <p>The URL is parsed and 45 lexical features are extracted — including length, special characters, domain properties, entropy, and brand impersonation detection.</p>
         </div>
         <div class="how-arrow">→</div>
         <div class="how-step">
@@ -363,7 +368,7 @@
     <div class="container">
       <div class="footer-inner">
         <div class="footer-logo">🛡️ URL<strong>Shield</strong></div>
-        <p class="footer-note">ML-based malicious URL detection — Academic project.</p>
+        <p class="footer-note">ML-based malicious URL detection — 45 features · Trusted domain DB · v2.0</p>
         <p class="footer-api">API: <code>http://127.0.0.1:5000</code></p>
       </div>
     </div>

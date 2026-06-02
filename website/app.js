@@ -113,12 +113,13 @@ function showResult(data) {
   resultPanel.classList.remove('hidden');
 
   const isMalicious = data.label === 'Malicious';
+  const isTrusted   = data.trusted_domain === true;
 
-  // Verdict
+  // Verdict — trusted domains get a special shield icon
   document.getElementById('verdictIcon').className = `verdict-icon ${isMalicious ? 'malicious' : 'safe'}`;
-  document.getElementById('verdictIcon').textContent = isMalicious ? '🚨' : '✅';
+  document.getElementById('verdictIcon').textContent = isMalicious ? '🚨' : (isTrusted ? '🛡️' : '✅');
   document.getElementById('verdictLabel').className = `verdict-label ${isMalicious ? 'malicious' : 'safe'}`;
-  document.getElementById('verdictLabel').textContent = data.label;
+  document.getElementById('verdictLabel').textContent = isTrusted ? 'Safe · Trusted Domain' : data.label;
   document.getElementById('verdictUrl').textContent = data.url;
 
   // Gauge
@@ -133,6 +134,15 @@ function showResult(data) {
   document.getElementById('chipMal').textContent     = (data.malicious_prob * 100).toFixed(1) + '%';
   document.getElementById('chipMs').textContent      = data.processing_ms + ' ms';
   document.getElementById('chipFeatures').textContent= data.features_used;
+
+  // Trusted domain chip — show/hide
+  const trustedChip = document.getElementById('chipTrusted');
+  if (isTrusted) {
+    trustedChip.style.display = '';
+    document.getElementById('chipTrustedVal').textContent = '✓ Verified';
+  } else {
+    trustedChip.style.display = 'none';
+  }
 }
 
 function showError(msg) {
